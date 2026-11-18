@@ -1,0 +1,10 @@
+{
+	"extends": "$app/tsconfig",
+	"compilerOptions": {
+		"strict": true,
+		// Worker types import the built _worker.js, so checkJs would type-check build output
+		"checkJs": false,
+		"types": ["$app/types", "node", "bun", "./worker-configuration.d.ts"]
+	},
+	"include": ["src", "vite.config.ts", "prettier.config.js", "eslint.config.js"]
+}
