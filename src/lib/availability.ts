@@ -4,6 +4,8 @@
 
 // Subdomain lookups against each registry repo, same approach as is-a.dev's checker
 
+import { domains, type FreeDomain } from '#lib';
+
 export type Availability =
 	| { state: 'available' }
 	| { state: 'reserved' }
@@ -55,7 +57,11 @@ export async function checkName(
 	if (!repo) return { state: 'soon' };
 
 	try {
-		if (isReserved(name, await fetchReserved(repo))) return { state: 'reserved' };
+		const reserved = await fetchReserved(repo);
+		const rootLabel = name.split('.').pop() ?? name;
+
+		// The registries also reserve every name nested under a reserved one
+		if (isReserved(name, reserved) || isReserved(rootLabel, reserved)) return { state: 'reserved' };
 
 		const response = await fetch(`${rawBase}/${repo}/main/domains/${name}.json`, {
 			signal
@@ -73,4 +79,22 @@ export async function checkName(
 	} catch {
 		return { state: 'error' };
 	}
+}
+
+// Splits "example.is-a.wiki" into its domain and subdomain name, or null if it isn't one of ours
+export function splitHostname(hostname: string): { domain: FreeDomain; name: string } | null {
+	const host = hostname.trim().toLowerCase();
+
+	for (const domain of domains) {
+		const suffix = `.${domain.name}`;
+
+		if (host.endsWith(suffix) && host.length > suffix.length) {
+			return {
+				domain,
+				name: host.slice(0, -suffix.length)
+			};
+		}
+	}
+
+	return null;
 }
