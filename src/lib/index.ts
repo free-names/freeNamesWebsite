@@ -39,10 +39,10 @@ export const domains: FreeDomain[] = [
 	},
 	{
 		name: 'has-a.space',
-		repo: null
+		repo: `${githubOrg}/has-a.space`
 	},
 	{
 		name: 'is-a.wiki',
-		repo: null
+		repo: `${githubOrg}/is-a-wiki`
 	}
 ];
